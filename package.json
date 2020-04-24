@@ -9,6 +9,9 @@
     "node-telegram-bot-api": "^0.40.0"
   },
   "scripts": {
-    "start": "node src/index.js"
+    "start": "node --inspect src/index.js"
+  },
+  "devDependencies": {
+    "nodemon": "^2.0.3"
   }
 }
