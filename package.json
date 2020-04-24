@@ -1,0 +1,14 @@
+{
+  "name": "oneupmud",
+  "version": "1.0.0",
+  "main": "src/index.js",
+  "author": "Jonathan Dunlap",
+  "license": "MIT",
+  "private": false,
+  "dependencies": {
+    "node-telegram-bot-api": "^0.40.0"
+  },
+  "scripts": {
+    "start": "node src/index.js"
+  }
+}
