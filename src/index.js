@@ -205,6 +205,21 @@ bot.onText(/[\/]?(attack|kill|swing)/, (msg, match) => {
   room.game.act(user, "attack");
 });
 
+bot.onText(/[\/]?(aid|heal|1up) (.*)/, (msg, match) => {
+    const chatId = msg.chat.id;
+    let room = rooms[chatId];
+    const user = msg.from.username;
+    if(!room?.game) {
+        send(chatId, 'no game created');
+        return;
+    }
+    console.log('match', match, match[2]);
+    
+    const params = match[2].replace('@', '');
+    room.game.act(user, "aid", params);
+  });
+  
+
 // Listen for any kind of message. There are different kinds of
 // messages.
 bot.on("message", (msg) => {

@@ -19,7 +19,7 @@ class Game {
   constructor(room) {
     console.log("Game room", room);
     this.room = room || {
-      players: { jadbox: { name: "jadbox", hp: 20, dm: 3 } },
+      players: { jadbox: { name: "jadbox", hpMax: 10, hp: 10, dm: 3 } },
     };
     this.players = this.room.players;
     this.playersNames = Object.keys(this.room.players);
@@ -58,11 +58,33 @@ class Game {
     this.started = false;
   }
 
-  act(player, cmd) {
+  act(player, cmd, params) {
     let action = null;
     let p = this.players[player];
 
     switch (cmd) {
+        case "aid": {
+            if(!params) {
+                this.send(`${player} aid who?`);
+                return;
+            }
+
+            const target = params;
+            if(this.playersNames.indexOf(target) === -1) {
+                this.send(`${player} invalid aid target: ${target}`);
+                return;
+            }
+            const tp = this.players[target];
+
+            console.log('aiding', params[0]);
+            if(tp.hp === tp.hpMax) {
+                this.send(`${target} is at max health of ${tp.hp}.`);
+                return;
+            }
+            tp.hp += 1;
+            tp.hp = Math.min(tp.hp, tp.hpMax);
+            this.send(`${player} gave 1hp to ${target}.\n${target} now has ${tp.hp}.`);
+        }
       case "attack": {
         if (!this.state.mobs?.length) {
           action = `${player} can't find anything here to attack.`;
