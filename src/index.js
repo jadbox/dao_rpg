@@ -62,6 +62,7 @@ function Room() {
 function Player(name) {
     return {
         hp: 30,
+        hpMax: 30,
         dm: 3,
         name: name
     }
@@ -74,10 +75,29 @@ const onState = (chatId, state) => {
     bot.sendMessage(chatId, state);
 }
 
+bot.onText(/\/(stop|pause)/, (msg, match) => {
+    const chatId = msg.chat.id;
+  
+    let room = rooms[chatId];
+    if(!room || !room.game) {
+        bot.sendMessage(chatId, `Game not started yet.`);
+        return;
+    }
+    
+    room.game.stop();
+    bot.sendMessage(chatId, `Game is stopped. /play to resume.`);
+});
+
 bot.onText(/\/play/, (msg, match) => {
   const chatId = msg.chat.id;
 
   let room = rooms[chatId];
+
+  if(room && room.game) {
+      room.game.resume();
+      bot.sendMessage(chatId, `Game is resuming...`);
+      return;
+  }
   if(!room) {
     // bot.sendMessage(chatId, 'must /join the party first');
     room = rooms[chatId] = Room();
@@ -91,7 +111,7 @@ bot.onText(/\/play/, (msg, match) => {
 
   
   game.start( onState.bind(this, chatId) );
-  bot.sendMessage(chatId, `Game is starting- good luck!`);
+  bot.sendMessage(chatId, `Game is starting- good luck! /stop to stop.`);
 });
 
 bot.onText(/[\/]?(attack|kill|swing)/, (msg, match) => {

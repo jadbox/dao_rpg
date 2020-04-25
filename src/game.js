@@ -8,6 +8,9 @@ function State(name) {
         ticks: 0
     }
 }
+
+const SPEED = 3500 * 1;
+
 class Game {
     constructor(room) {
         console.log('Game room', room);
@@ -24,10 +27,18 @@ class Game {
         console.log('starting game');
         this.onState = onState;
 
-        const SPEED = 3500;
+        this.resume();
+    }
+
+    resume() {
         this.loop = setInterval(this._run.bind(this), SPEED);
         this.started = true;
     }
+    stop() {
+        clearInterval(this.loop);
+        this.started = false;
+    }
+
     act(player, cmd) {
         let action = null;
         let p = this.players[player];
@@ -78,14 +89,13 @@ class Game {
                 if(Math.random() > .3) {
                     this.state = State("battle");
 
-                    const list = [...new Array(rint(2, 1))];
+                    const list = Array(rint(3, 1)).fill(0);
                     // const mob = this._genMob();
                     const mobs = list.map( _ => this._makeMob() );
                     this.state.mobs = mobs;
-                    console.log('mobs', mobs);
 
-                    if(mobs === 1) action =`you see a ${mob.name}!`;
-                    else action =`you see ${mobs.map(x=>x.name).join(', ')}!`;
+                    if(mobs.length === 1) action =`You see a ${mobs[0].name}!`;
+                    else action =`You see a band of ${mobs.map(x=>x.name).join(', ')}!`;
                     break;
                 }
                 action = "The party travels for awhile."
@@ -118,7 +128,8 @@ class Game {
                     break;
                 }
                 else {
-                    action = `${mob.name} prepares an attack...`;
+                    if(rnd > .7) action = `${mob.name} prepares an attack...`;
+                    else action = null; // say nothing
                     break;
                 }
         }
