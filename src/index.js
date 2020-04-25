@@ -76,8 +76,8 @@ function Room() {
 }
 function Player(name) {
   return {
-    hp: 1,
-    hpMax: 10,
+    hp: 8,
+    hpMax: 8,
     dm: 3,
     name: name,
   };
@@ -115,9 +115,9 @@ const sendPoll = async (chatId, question, pollOptions, options) => {
       });
       const winner = lastPoll.length > 0 ? lastPoll[0].text : pollOptions[0];
       let voter_count = lastPoll.length > 0 ? lastPoll[0].voter_count : 0;
-      const rmsg = `Proposal <${String(winner).toUpperCase()}> won with ${
-        voter_count
-      } vote.`;
+      const rmsg = `Proposal <${String(
+        winner
+      ).toUpperCase()}> won with ${voter_count} vote.`;
 
       send(chatId, rmsg);
       bot.removeListener("poll", onPoll);
@@ -137,14 +137,6 @@ const sendPoll = async (chatId, question, pollOptions, options) => {
     bot.on("poll", onPoll);
   });
   // bot.on('message', console.log.bind(console));
-};
-
-const startPolling = (chatId, msg) => {
-  if (!msg) return;
-
-  // Date.now() + ':' +
-  console.log(chatId, msg);
-  bot.sendMessage(chatId, msg);
 };
 
 bot.onText(/\/(stop|pause)/, (msg, match) => {
@@ -186,10 +178,15 @@ bot.onText(/\/(play|🎰)/, (msg, match) => {
 
   const onGameEnded = () => {
     // _sendMsg('Game Over.');
-    if(rooms[chatId]) rooms[chatId] = null;
-  }
+    if (rooms[chatId]) rooms[chatId] = null;
+  };
+  const _sendSticked = (id, type) => {
+    console.log("_sendSticked", id, type);
+    if (type === "sticker") bot.sendSticker(chatId, id);
+    else if (type === "animation" || true) bot.sendDocument(chatId, id);
+  };
 
-  game.start(_sendMsg, _sendPoll, onGameEnded);
+  game.start(_sendMsg, _sendPoll, onGameEnded, _sendSticked);
   bot.sendMessage(chatId, `Game is starting- good luck! /stop to stop.`);
 });
 
@@ -197,41 +194,62 @@ bot.onText(/[\/]?(attack|kill|swing|⚔️|🤺|🏹|🗡|🔫|⛓|🔪|🧨)/, 
   const chatId = msg.chat.id;
   let room = rooms[chatId];
   const user = msg.from.username;
-  if(!room?.game) {
-      send(chatId, 'no game created');
-      return;
+  if (!room?.game) {
+    send(chatId, "no game created");
+    return;
   }
 
   room.game.act(user, "attack");
 });
 
 bot.onText(/[\/]?(aid|heal|1up|🍿|🛡|💊|🥪) (.*)/, (msg, match) => {
-    const chatId = msg.chat.id;
-    let room = rooms[chatId];
-    const user = msg.from.username;
-    if(!room?.game) {
-        send(chatId, 'no game created');
-        return;
-    }
-    console.log('match', match, match[2]);
+  const chatId = msg.chat.id;
+  let room = rooms[chatId];
+  const user = msg.from.username;
+  if (!room?.game) {
+    send(chatId, "no game created");
+    return;
+  }
+  console.log("match", match, match[2]);
 
-    const params = match[2].replace('@', '');
-    room.game.act(user, "aid", params);
-  });
-  
+  const params = match[2].replace("@", "");
+  room.game.act(user, "aid", params);
+});
 
 // Listen for any kind of message. There are different kinds of
 // messages.
-bot.on("message", (msg) => {
+bot.on("message", (msg, match) => {
   const chatId = msg.chat.id;
-  // console.log(msg.from.username, match[0]);
 
-  // send a message to the chat acknowledging receipt of their message
-  // bot.sendMessage(chatId, 'Received your message');
+		if (!match?.type) return;
+		if(!msg?.sticker?.file_id && !msg?.animation?.file_id) return;
+  console.log("match type", match?.type);
+  console.log("Sticker", msg?.sticker?.file_id);
+  console.log("Animation", msg?.animation?.file_id, msg?.animation);
+});
+
+bot.onText(/\/test/, (msg, match) => {
+  const chatId = msg.chat.id;
+  bot.sendDocument(
+    chatId,
+    "CgACAgQAAxkBAAIGnF6kwDGFj_M0kZ-skV-Kuoe-L_xvAAJrAgACrEAsUZcOPnnrs47BGQQ"
+  );
 });
 
 bot.onText(/\/start/, (msg, match) => {
-    const chatId = msg.chat.id;
+  const chatId = msg.chat.id;
 
-    bot.sendMessage(chatId, `Welcome to DAO RPG! Type /join to form a new party.`);
+  bot.sendMessage(
+    chatId,
+    `Welcome to DAO RPG! Type /join to form a new party.`
+  );
+});
+
+bot.onText(/\/help/, (msg, match) => {
+  const chatId = msg.chat.id;
+
+  bot.sendMessage(
+    chatId,
+    `Basic commands:\nAttack: /attack\nheal: /heal PLAYER_NAME`
+  );
 });

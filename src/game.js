@@ -1,7 +1,7 @@
 const MOBS = ["rat", "skeleton", "slug"];
 const MOBS_STATS = {
-  rat: { hp: 1, name: "rat", dm: 1 },
-  skeleton: { hp: 1, name: "skeleton", dm: 1 },
+  rat: { hp: 3, name: "rat", dm: 2 },
+  skeleton: { hp: 3, name: "skeleton", dm: 2 },
   slug: { hp: 1, name: "slug", dm: 1 },
 };
 
@@ -13,7 +13,7 @@ function State(name) {
   };
 }
 
-const SPEED = 3500 * 1;
+const SPEED = 3500 * 2;
 
 class Game {
   constructor(room) {
@@ -28,13 +28,18 @@ class Game {
     this.state = State("start");
   }
   // onState (event) => ()
-  start(send, sendPoll, endGame) {
+  start(send, sendPoll, endGame, sendSticker) {
     if (this.loop) throw new Error("already started");
 
     console.log("starting game");
     this.send = send;
     this.sendPoll = sendPoll;
     this.endGame = endGame;
+    this.sendSticker = sendSticker;
+
+    sendSticker(
+      "CgACAgQAAxkBAAIGol6kwbLtpQ5_uc2a8bLHKNB4lsAuAAJWAgACoz3tUtSzYsQxjrI1GQQ"
+    );
 
     this.resume();
   }
@@ -49,12 +54,14 @@ class Game {
   }
 
   resume() {
+    if (this.started) return;
     this.loop = setInterval(this._run.bind(this), SPEED);
     this.started = true;
-    this._run();
+    // this._run();
   }
   stop() {
-    clearInterval(this.loop);
+				if(this.loop) clearInterval(this.loop);
+				this.loop = null;
     this.started = false;
   }
 
@@ -62,29 +69,38 @@ class Game {
     let action = null;
     let p = this.players[player];
 
+    if (p.hp === 0) {
+      this.send(
+        `Sorry, ${player} is dead. Someone can heal ${player} by "/heal ${player}".`
+      );
+      return;
+    }
+
     switch (cmd) {
-        case "aid": {
-            if(!params) {
-                this.send(`${player} aid who?`);
-                return;
-            }
-
-            const target = params;
-            if(this.playersNames.indexOf(target) === -1) {
-                this.send(`${player} invalid aid target: ${target}`);
-                return;
-            }
-            const tp = this.players[target];
-
-            console.log('aiding', params[0]);
-            if(tp.hp === tp.hpMax) {
-                this.send(`${target} is at max health of ${tp.hp}.`);
-                return;
-            }
-            tp.hp += 1;
-            tp.hp = Math.min(tp.hp, tp.hpMax);
-            this.send(`💊${player} gave 1hp to ${target}.\n${target} now has ${tp.hp}.`);
+      case "aid": {
+        if (!params) {
+          this.send(`${player} aid who?`);
+          return;
         }
+
+        const target = params;
+        if (this.playersNames.indexOf(target) === -1) {
+          this.send(`${player} invalid aid target: ${target}`);
+          return;
+        }
+        const tp = this.players[target];
+
+        console.log("aiding", params[0]);
+        if (tp.hp === tp.hpMax) {
+          this.send(`${target} is at max health of ${tp.hp}.`);
+          return;
+        }
+        tp.hp += 1;
+        tp.hp = Math.min(tp.hp, tp.hpMax);
+        this.send(
+          `💊${player} gave 1hp to ${target}.\n${target} now has ${tp.hp}.`
+        );
+      }
       case "attack": {
         if (!this.state.mobs?.length) {
           action = `${player} can't find anything here to attack.`;
@@ -99,7 +115,7 @@ class Game {
         mob.hp -= dm;
         if (mob.hp > 0) action += ` ${mob.name} has ${mob.hp}hp left.`;
         else {
-          action += `\n$💀{mob.name} has died!`;
+          action += `\n💀${mob.name} has died!`;
           this.state.mobs = this.state.mobs.filter((x) => x.hp > 0);
         }
       }
@@ -118,35 +134,57 @@ class Game {
     let action = null;
 
     // all dead
-    if (this.state.name !== "dead" && this.playersArr.every((x) => x.hp === 0)) {
+    if (
+      this.state.name !== "dead" &&
+      this.playersArr.every((x) => x.hp === 0)
+    ) {
       this.state = State("dead");
     }
 
     let statename = this.state.name;
 
     this.state.ticks++;
+    console.log("statename", this.state.ticks);
 
     switch (statename) {
-        case "dead":
-            if (this.state.ticks !== 1) return;
-            action = `⚰️⚰️⚰️Party has died :( \n Press /start to begin again.`;
-            this.endGame();
-            this.stop();
-            break;
+      case "dead":
+        if (this.state.ticks !== 1) return;
+        this.sendSticker(
+          "CgACAgQAAxkBAAIG3l6kwuORUguOafjfk6GJKWV_SaXuAAIiAgAC3uj0Ulw22nzaA9W9GQQ"
+        );
+        action = `⚰️⚰️⚰️Party has died :( \n Press /start to begin again.`;
+        this.endGame();
+        this.stop();
+        break;
       case "start":
         // battle transition
         if (this.state.ticks === 1) {
           const l = await this.poll("Where does the party go?", [
-            "north",
-            "east",
-            "south",
-            "west",
+            "into the dungeon",
+            "into the dark forest",
+            "end game",
           ]);
 
-          action = `The party begins walking ${l} down the road.`;
+          if (l === "end game") {
+            this.endGame();
+            this.stop();
+            action = `game ended. Type /start to begin.`;
+            break;
+										}
+										
+										if(l === 'into the dungeon') {
+											this.sendSticker('CgACAgQAAxkBAAIHfF6kx7Flv1xxkY3hnZAjE4FzVzYTAAJpAgAD6u1SwfbnP55tLsUZBA');
+										} else if(l === 'into the dark forest') {
+											this.sendSticker('CgACAgQAAxkBAAIHfl6kyC3bqdc4or1uBgvmUhJ5dewQAAIiAgACXlXtUmMc11QVRzApGQQ');
+										}
+
+          action = `The party begins their travel ${l}!`;
           break;
         }
-        if (Math.random() > 0.3) {
+        if (
+          (this.state.ticks > 2 && Math.random() > 0.5) ||
+          this.state.ticks === 6
+        ) {
           this.state = State("battle");
 
           const list = Array(rint(3, 1)).fill(0);
@@ -154,9 +192,15 @@ class Game {
           const mobs = list.map((_) => this._makeMob());
           this.state.mobs = mobs;
 
+          this.sendSticker(
+            "CgACAgQAAxkBAAIGsV6kwf1tL9MAAe0ThA8x2NnqI6SNJwACawIAAqxALFGXDj5567OOwRkE"
+          );
+
           if (mobs.length === 1) action = `You see a ${mobs[0].name}!`;
           else
             action = `You see a band of ${mobs.map((x) => x.name).join(", ")}!`;
+
+          action += " Type /attack to get it!";
           break;
         }
         action = "The party travels for awhile.";
@@ -165,6 +209,10 @@ class Game {
         if (this.state.mobs.length === 0) {
           action = `🎉Battle was won! Found ${rint(100, 0)} gold 💰💰💰`;
           this.state = State("start");
+
+          this.sendSticker(
+											"CgACAgQAAxkBAAIHkF6kyGV6ZVQ6OuV0GPbveB-y_pVlAAJqAgACmu8sUbwLetsPCbbzGQQ"
+          );
           break;
         }
         const rnd = Math.random();
