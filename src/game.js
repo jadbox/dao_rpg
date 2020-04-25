@@ -83,7 +83,7 @@ class Game {
             }
             tp.hp += 1;
             tp.hp = Math.min(tp.hp, tp.hpMax);
-            this.send(`${player} gave 1hp to ${target}.\n${target} now has ${tp.hp}.`);
+            this.send(`💊${player} gave 1hp to ${target}.\n${target} now has ${tp.hp}.`);
         }
       case "attack": {
         if (!this.state.mobs?.length) {
@@ -94,12 +94,12 @@ class Game {
         const mob = this.state.mobs[mobIx];
         const dm = rint(p.dm, 1);
 
-        action = `${player} attacks ${mob.name} for ${dm}!`;
+        action = `⚔️${player} attacks ${mob.name} for ${dm}!`;
 
         mob.hp -= dm;
         if (mob.hp > 0) action += ` ${mob.name} has ${mob.hp}hp left.`;
         else {
-          action += ` ${mob.name} has died!`;
+          action += `\n$💀{mob.name} has died!`;
           this.state.mobs = this.state.mobs.filter((x) => x.hp > 0);
         }
       }
@@ -129,7 +129,7 @@ class Game {
     switch (statename) {
         case "dead":
             if (this.state.ticks !== 1) return;
-            action = `Party has died :( \n Press /start to begin again.`;
+            action = `⚰️⚰️⚰️Party has died :( \n Press /start to begin again.`;
             this.endGame();
             this.stop();
             break;
@@ -163,7 +163,7 @@ class Game {
         break;
       case "battle":
         if (this.state.mobs.length === 0) {
-          action = `Battle was won! Found ${rint(100, 0)} gold.`;
+          action = `🎉Battle was won! Found ${rint(100, 0)} gold 💰💰💰`;
           this.state = State("start");
           break;
         }
@@ -180,11 +180,11 @@ class Game {
 
           const playerO = this.players[player];
           const dm = rint(mob.dm, 1);
-          action = `The ${mob.name} attacks ${player} for ${dm}! Press /attack now!`;
+          action = `🥊 The ${mob.name} attacks ${player} for ${dm}! Press /attack now!`;
 
           playerO.hp -= dm;
           if (playerO.hp > 0) action += `\n${player} has ${playerO.hp}hp left.`;
-          else action += `\n${player} has died!`;
+          else action += `\n⚰️${player} has died!`;
 
           break;
         } else {

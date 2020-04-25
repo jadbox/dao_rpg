@@ -76,7 +76,7 @@ function Room() {
 }
 function Player(name) {
   return {
-    hp: 10,
+    hp: 1,
     hpMax: 10,
     dm: 3,
     name: name,
@@ -160,7 +160,7 @@ bot.onText(/\/(stop|pause)/, (msg, match) => {
   send(chatId, `Game is stopped. /play to resume.`);
 });
 
-bot.onText(/\/play/, (msg, match) => {
+bot.onText(/\/(play|🎰)/, (msg, match) => {
   const chatId = msg.chat.id;
 
   let room = rooms[chatId];
@@ -193,7 +193,7 @@ bot.onText(/\/play/, (msg, match) => {
   bot.sendMessage(chatId, `Game is starting- good luck! /stop to stop.`);
 });
 
-bot.onText(/[\/]?(attack|kill|swing)/, (msg, match) => {
+bot.onText(/[\/]?(attack|kill|swing|⚔️|🤺|🏹|🗡|🔫|⛓|🔪|🧨)/, (msg, match) => {
   const chatId = msg.chat.id;
   let room = rooms[chatId];
   const user = msg.from.username;
@@ -205,7 +205,7 @@ bot.onText(/[\/]?(attack|kill|swing)/, (msg, match) => {
   room.game.act(user, "attack");
 });
 
-bot.onText(/[\/]?(aid|heal|1up) (.*)/, (msg, match) => {
+bot.onText(/[\/]?(aid|heal|1up|🍿|🛡|💊|🥪) (.*)/, (msg, match) => {
     const chatId = msg.chat.id;
     let room = rooms[chatId];
     const user = msg.from.username;
@@ -214,7 +214,7 @@ bot.onText(/[\/]?(aid|heal|1up) (.*)/, (msg, match) => {
         return;
     }
     console.log('match', match, match[2]);
-    
+
     const params = match[2].replace('@', '');
     room.game.act(user, "aid", params);
   });
