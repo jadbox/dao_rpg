@@ -193,9 +193,9 @@ bot.onText(/\/(play|🎰)/i, (msg, match) => {
 });
 
 bot.onText(/[\/]?(attack|kill|swing|⚔️|🤺|🏹|🗡|🔫|⛓|🔪|🧨)/i, (msg, match) => {
-  const chatId = msg.chat.id;
+		const chatId = msg.chat.id;
+		const user = msg.from.username;
   let room = rooms[chatId];
-  const user = msg.from.username;
   if (!room?.game) {
     send(chatId, "no game created");
     return;
@@ -206,13 +206,13 @@ bot.onText(/[\/]?(attack|kill|swing|⚔️|🤺|🏹|🗡|🔫|⛓|🔪|🧨)/i,
 
 bot.onText(/[\/]?(aid|heal|1up|🍿|🛡|💊|🥪) (.*)/i, (msg, match) => {
   const chatId = msg.chat.id;
-  let room = rooms[chatId];
+  const room = rooms[chatId];
   const user = msg.from.username;
 
   if (match[1]?.toLowerCase() === "1up") {
     // console.log("room.game?.state?.name", match[1]);
     if (!room?.game) return;
-    if (room.game?.state?.name !== "battle") return;
+    if (room?.game?.state?.name !== "battle") return;
   }
   if (!room?.game) {
     send(chatId, "no game created");
