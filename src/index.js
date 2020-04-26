@@ -139,7 +139,7 @@ const sendPoll = async (chatId, question, pollOptions, options) => {
   // bot.on('message', console.log.bind(console));
 };
 
-bot.onText(/\/(stop|pause)/, (msg, match) => {
+bot.onText(/\/(stop|pause)/i, (msg, match) => {
   const chatId = msg.chat.id;
 
   let room = rooms[chatId];
@@ -152,7 +152,7 @@ bot.onText(/\/(stop|pause)/, (msg, match) => {
   send(chatId, `Game is stopped. /play to resume.`);
 });
 
-bot.onText(/\/(play|🎰)/, (msg, match) => {
+bot.onText(/\/(play|🎰)/i, (msg, match) => {
   const chatId = msg.chat.id;
 
   let room = rooms[chatId];
@@ -190,7 +190,7 @@ bot.onText(/\/(play|🎰)/, (msg, match) => {
   bot.sendMessage(chatId, `Game is starting- good luck! /stop to stop.`);
 });
 
-bot.onText(/[\/]?(attack|kill|swing|⚔️|🤺|🏹|🗡|🔫|⛓|🔪|🧨)/, (msg, match) => {
+bot.onText(/[\/]?(attack|kill|swing|⚔️|🤺|🏹|🗡|🔫|⛓|🔪|🧨)/i, (msg, match) => {
   const chatId = msg.chat.id;
   let room = rooms[chatId];
   const user = msg.from.username;
@@ -202,17 +202,21 @@ bot.onText(/[\/]?(attack|kill|swing|⚔️|🤺|🏹|🗡|🔫|⛓|🔪|🧨)/, 
   room.game.act(user, "attack");
 });
 
-bot.onText(/[\/]?(aid|heal|1up|🍿|🛡|💊|🥪) (.*)/, (msg, match) => {
+bot.onText(/[\/]?(aid|heal|1up|🍿|🛡|💊|🥪) (.*)/i, (msg, match) => {
   const chatId = msg.chat.id;
   let room = rooms[chatId];
   const user = msg.from.username;
+
+  if (match[1]?.toLowerCase() === "1up") {
+    console.log("room.game?.state?.name", match[1]);
+    if (!room?.game) return;
+    if (room.game?.state?.name !== "battle") return;
+  }
   if (!room?.game) {
     send(chatId, "no game created");
     return;
-		}
-		if(match[1]==='1up') {
-			// send(chatId, `/1up@oneupworld_bot ${match[2]}`);
-		}
+  }
+
   console.log("match", match, match[2]);
 
   const params = match[2].replace("@", "");
@@ -224,8 +228,8 @@ bot.onText(/[\/]?(aid|heal|1up|🍿|🛡|💊|🥪) (.*)/, (msg, match) => {
 bot.on("message", (msg, match) => {
   const chatId = msg.chat.id;
 
-		if (!match?.type) return;
-		if(!msg?.sticker?.file_id && !msg?.animation?.file_id) return;
+  if (!match?.type) return;
+  if (!msg?.sticker?.file_id && !msg?.animation?.file_id) return;
   console.log("match type", match?.type);
   console.log("Sticker", msg?.sticker?.file_id);
   console.log("Animation", msg?.animation?.file_id, msg?.animation);
