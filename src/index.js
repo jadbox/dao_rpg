@@ -209,7 +209,10 @@ bot.onText(/[\/]?(aid|heal|1up|🍿|🛡|💊|🥪) (.*)/, (msg, match) => {
   if (!room?.game) {
     send(chatId, "no game created");
     return;
-  }
+		}
+		if(match[1]==='1up') {
+			// send(chatId, `/1up@oneupworld_bot ${match[2]}`);
+		}
   console.log("match", match, match[2]);
 
   const params = match[2].replace("@", "");

@@ -67,7 +67,14 @@ class Game {
 
   act(player, cmd, params) {
     let action = null;
-    let p = this.players[player];
+				let p = this.players[player];
+				
+				if(!p) {
+					this.send(
+						`Sorry, ${player} is not in the quest.`
+				);
+					return;
+				}
 
     if (p.hp === 0) {
       this.send(
