@@ -9,11 +9,12 @@ function State(name) {
   return {
     name: name,
     mobs: [],
-    ticks: 0,
+				ticks: 0,
+				path: ''
   };
 }
 
-const SPEED = 3500 * 2;
+const SPEED = 3500 * 1.25;
 
 class Game {
   constructor(room) {
@@ -25,7 +26,8 @@ class Game {
     this.playersNames = Object.keys(this.room.players);
     this.playersArr = Object.values(this.room.players);
     this.playersLen = this.playersNames.length;
-    this.state = State("start");
+				this.state = State("start");
+				this.gstate = { path: '' };
   }
   // onState (event) => ()
   start(send, sendPoll, endGame, sendSticker) {
@@ -162,11 +164,29 @@ class Game {
         action = `⚰️⚰️⚰️Party has died :( \n Press /start to begin again.`;
         this.endGame();
         this.stop();
-        break;
+								break;
+					 case "traveling":
       case "start":
         // battle transition
         if (this.state.ticks === 1) {
-          const l = await this.poll("Where does the party go?", [
+
+									let l = null;
+									if(statename==="traveling" && this.gstate.path?.indexOf('dungeon') > -1) {
+										l = await this.poll("You're in a dungeon. There are two old doors in front of you:", [
+											"Take the left dungeon door",
+											"Take the right dungeon door",
+											"Take dungeon stairs downward",
+											"end game",
+									]);
+									}
+									else if(statename==="traveling" && this.gstate.path?.indexOf('forest') > -1) {
+										l = await this.poll("You're in the forest. Where does the party go now?", [
+											"travel along a forest river",
+											"stay on the forest road",
+											"end game",
+									]);
+									}
+         else l = await this.poll("Where does the party go?", [
             "into the dungeon",
             "into the dark forest",
             "end game",
@@ -179,6 +199,7 @@ class Game {
             break;
 										}
 										
+										this.gstate.path = l;
 										if(l === 'into the dungeon') {
 											this.sendSticker('CgACAgQAAxkBAAIHfF6kx7Flv1xxkY3hnZAjE4FzVzYTAAJpAgAD6u1SwfbnP55tLsUZBA');
 										} else if(l === 'into the dark forest') {
@@ -215,7 +236,7 @@ class Game {
       case "battle":
         if (this.state.mobs.length === 0) {
           action = `🎉Battle was won! Found ${rint(100, 0)} gold 💰💰💰`;
-          this.state = State("start");
+          this.state = State("traveling");
 
           this.sendSticker(
 											"CgACAgQAAxkBAAIHkF6kyGV6ZVQ6OuV0GPbveB-y_pVlAAJqAgACmu8sUbwLetsPCbbzGQQ"
