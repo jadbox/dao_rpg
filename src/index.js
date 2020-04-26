@@ -208,7 +208,7 @@ bot.onText(/[\/]?(aid|heal|1up|🍿|🛡|💊|🥪) (.*)/i, (msg, match) => {
   const user = msg.from.username;
 
   if (match[1]?.toLowerCase() === "1up") {
-    console.log("room.game?.state?.name", match[1]);
+    // console.log("room.game?.state?.name", match[1]);
     if (!room?.game) return;
     if (room.game?.state?.name !== "battle") return;
   }
@@ -217,7 +217,7 @@ bot.onText(/[\/]?(aid|heal|1up|🍿|🛡|💊|🥪) (.*)/i, (msg, match) => {
     return;
   }
 
-  console.log("match", match, match[2]);
+  // console.log("match", match, match[2]);
 
   const params = match[2].replace("@", "");
   room.game.act(user, "aid", params);
