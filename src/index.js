@@ -1,8 +1,10 @@
+require('dotenv').config();
+console.log('DAO_RPG_TOKEN', process.env.DAO_RPG_TOKEN);
 const { Game } = require("./game");
 const TelegramBot = require("node-telegram-bot-api");
 
 // replace the value below with the Telegram token you receive from @BotFather
-const token = "1195063908:AAFmB45q7IivgLMC64x8nopRyk7yaJNnGsA";
+const token = process.env.DAO_RPG_TOKEN;
 
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, { polling: true });

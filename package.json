@@ -6,6 +6,7 @@
   "license": "MIT",
   "private": false,
   "dependencies": {
+    "dotenv": "^8.2.0",
     "node-telegram-bot-api": "^0.40.0"
   },
   "scripts": {
@@ -14,8 +15,11 @@
   "devDependencies": {
     "nodemon": "^2.0.3"
   },
-   "nodemonConfig": {
-    "ignore": ["test/*", "docs/*"],
+  "nodemonConfig": {
+    "ignore": [
+      "test/*",
+      "docs/*"
+    ],
     "delay": "1500"
   }
 }
