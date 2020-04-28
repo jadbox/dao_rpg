@@ -1,9 +1,18 @@
-const MOBS = ["rat", "skeleton", "slug"];
+const NUM_BATTLES = 2; // number of battles before boss
+const SPEED = 2000 * 2.00;
+
 const MOBS_STATS = {
-  rat: { hp: 3, name: "rat", dm: 2 },
-  skeleton: { hp: 3, name: "skeleton", dm: 2 },
-  slug: { hp: 1, name: "slug", dm: 1 },
+  rat: { hp: 3, dm: 2 },
+  skeleton: { hp: 3, dm: 2 },
+  slug: { hp: 1, dm: 1 },
 };
+const MOBS = Object.keys(MOBS_STATS);
+Object.keys(MOBS_STATS).forEach(k=>MOBS_STATS[k].name = k);
+
+const BOSS_STATS = {
+  'giant orc': { hp: 10, dm: 3 }
+};
+Object.keys(BOSS_STATS).forEach(k=>BOSS_STATS[k].name = k);
 
 function State(name) {
   return {
@@ -13,8 +22,6 @@ function State(name) {
 				path: ''
   };
 }
-
-const SPEED = 3500 * 1.25;
 
 class Game {
   constructor(room) {
@@ -27,7 +34,7 @@ class Game {
     this.playersArr = Object.values(this.room.players);
     this.playersLen = this.playersNames.length;
 				this.state = State("start");
-				this.gstate = { path: '' };
+				this.gstate = { path: '', numBattles: 0 };
   }
   // onState (event) => ()
   start(send, sendPoll, endGame, sendSticker) {
@@ -139,6 +146,14 @@ class Game {
     mob = mob || this._genMob();
     return Object.assign({}, MOBS_STATS[mob]);
   }
+  _genBoss() {
+    const bossNames = Object.keys(BOSS_STATS);
+    return bossNames[rint(bossNames.length, 0)];
+  }
+  _makeBoss(mob) {
+    mob = mob || this._genBoss();
+    return Object.assign({}, BOSS_STATS[mob]);
+  }
   async _run() {
     let action = null;
 
@@ -153,7 +168,7 @@ class Game {
     let statename = this.state.name;
 
     this.state.ticks++;
-    console.log("statename", this.state.ticks);
+    // console.log("statename", this.state.ticks);
 
     switch (statename) {
       case "dead":
@@ -165,7 +180,14 @@ class Game {
         this.endGame();
         this.stop();
 								break;
-					 case "traveling":
+			case "traveling":
+        if(this.gstate.numBattles===NUM_BATTLES+1) {
+          this.send('You\'ve completed the quest! Press /join to join in on a new mission.');
+          this.endGame();
+          this.stop();
+          this.state = State("traveling");
+          break;
+        }
       case "start":
         // battle transition
         if (this.state.ticks === 1) {
@@ -217,16 +239,26 @@ class Game {
 
           const list = Array(rint(3, 1)).fill(0);
           // const mob = this._genMob();
-          const mobs = list.map((_) => this._makeMob());
+          let mobs = [];
+
+          // Make boss
+          if(this.gstate.numBattles===NUM_BATTLES) {
+            mobs = [this._makeBoss()];
+            this.send('You approach the boss! Get ready!');
+          } else {
+            mobs = list.map((_) => this._makeMob());
+          }
+
           this.state.mobs = mobs;
 
           this.sendSticker(
             "CgACAgQAAxkBAAIGsV6kwf1tL9MAAe0ThA8x2NnqI6SNJwACawIAAqxALFGXDj5567OOwRkE"
           );
 
-          if (mobs.length === 1) action = `You see a ${mobs[0].name}!`;
+          if (mobs.length === 1) action = `You see a ceature approach: a ${mobs[0].name}!`;
+          if (mobs.length === 2) action = `You see two creatures approaching: a ${mobs[0].name} and a ${mobs[1].name}!`;
           else
-            action = `You see a band of ${mobs.map((x) => x.name).join(", ")}!`;
+            action = `You see a band of ${mobs.map((x) => x.name).join(", ")} approaching!`;
 
           action += " Type /attack to get it!";
           break;
@@ -236,6 +268,8 @@ class Game {
       case "battle":
         if (this.state.mobs.length === 0) {
           action = `🎉Battle was won! Found ${rint(100, 0)} gold 💰💰💰`;
+
+          this.gstate.numBattles++;
           this.state = State("traveling");
 
           this.sendSticker(
