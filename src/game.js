@@ -9,8 +9,8 @@ function State(name) {
   return {
     name: name,
     mobs: [],
-				ticks: 0,
-				path: ''
+    ticks: 0,
+    path: "",
   };
 }
 
@@ -26,8 +26,8 @@ class Game {
     this.playersNames = Object.keys(this.room.players);
     this.playersArr = Object.values(this.room.players);
     this.playersLen = this.playersNames.length;
-				this.state = State("start");
-				this.gstate = { path: '' };
+    this.state = State("start");
+    this.gstate = { path: "" };
   }
   // onState (event) => ()
   start(send, sendPoll, endGame, sendSticker) {
@@ -47,7 +47,7 @@ class Game {
   }
 
   async poll(msg, optionPoll, options) {
-    this.stop();
+    this.pause();
     options = options || { open_period: 10 };
     options.players = this.playersLen;
     const result = await this.sendPoll(msg, optionPoll, options);
@@ -57,26 +57,32 @@ class Game {
 
   resume() {
     if (this.started) return;
+    if (this.ended) {
+      return;
+    }
     this.loop = setInterval(this._run.bind(this), SPEED);
     this.started = true;
     // this._run();
   }
-  stop() {
-				if(this.loop) clearInterval(this.loop);
-				this.loop = null;
+  quit() {
+    pause();
+    if(!this.ended) this.endGame();
+    this.ended = true;
+  }
+  pause() {
+    if (this.loop) clearInterval(this.loop);
+    this.loop = null;
     this.started = false;
   }
 
   act(player, cmd, params) {
     let action = null;
-				let p = this.players[player];
-				
-				if(!p) {
-					this.send(
-						`Sorry, ${player} is not in the quest.`
-				);
-					return;
-				}
+    let p = this.players[player];
+
+    if (!p) {
+      this.send(`Sorry, ${player} is not in the quest.`);
+      return;
+    }
 
     if (p.hp === 0) {
       this.send(
@@ -162,49 +168,61 @@ class Game {
           "CgACAgQAAxkBAAIG3l6kwuORUguOafjfk6GJKWV_SaXuAAIiAgAC3uj0Ulw22nzaA9W9GQQ"
         );
         action = `⚰️⚰️⚰️Party has died :( \n Press /start to begin again.`;
-        this.endGame();
-        this.stop();
-								break;
-					 case "traveling":
+        this.quit();
+        break;
+      case "traveling":
       case "start":
         // battle transition
         if (this.state.ticks === 1) {
-
-									let l = null;
-									if(statename==="traveling" && this.gstate.path?.indexOf('dungeon') > -1) {
-										l = await this.poll("You're in a dungeon. There are two old doors in front of you:", [
-											"Take the left dungeon door",
-											"Take the right dungeon door",
-											"Take dungeon stairs downward",
-											"end game",
-									]);
-									}
-									else if(statename==="traveling" && this.gstate.path?.indexOf('forest') > -1) {
-										l = await this.poll("You're in the forest. Where does the party go now?", [
-											"travel along a forest river",
-											"stay on the forest road",
-											"end game",
-									]);
-									}
-         else l = await this.poll("Where does the party go?", [
-            "into the dungeon",
-            "into the dark forest",
-            "end game",
-          ]);
+          let l = null;
+          if (
+            statename === "traveling" &&
+            this.gstate.path?.indexOf("dungeon") > -1
+          ) {
+            l = await this.poll(
+              "You're in a dungeon. There are two old doors in front of you:",
+              [
+                "Take the left dungeon door",
+                "Take the right dungeon door",
+                "Take dungeon stairs downward",
+                "end game",
+              ]
+            );
+          } else if (
+            statename === "traveling" &&
+            this.gstate.path?.indexOf("forest") > -1
+          ) {
+            l = await this.poll(
+              "You're in the forest. Where does the party go now?",
+              [
+                "travel along a forest river",
+                "stay on the forest road",
+                "end game",
+              ]
+            );
+          } else
+            l = await this.poll("Where does the party go?", [
+              "into the dungeon",
+              "into the dark forest",
+              "end game",
+            ]);
 
           if (l === "end game") {
-            this.endGame();
-            this.stop();
+            this.quit();
             action = `game ended. Type /start to begin.`;
             break;
-										}
-										
-										this.gstate.path = l;
-										if(l === 'into the dungeon') {
-											this.sendSticker('CgACAgQAAxkBAAIHfF6kx7Flv1xxkY3hnZAjE4FzVzYTAAJpAgAD6u1SwfbnP55tLsUZBA');
-										} else if(l === 'into the dark forest') {
-											this.sendSticker('CgACAgQAAxkBAAIHfl6kyC3bqdc4or1uBgvmUhJ5dewQAAIiAgACXlXtUmMc11QVRzApGQQ');
-										}
+          }
+
+          this.gstate.path = l;
+          if (l === "into the dungeon") {
+            this.sendSticker(
+              "CgACAgQAAxkBAAIHfF6kx7Flv1xxkY3hnZAjE4FzVzYTAAJpAgAD6u1SwfbnP55tLsUZBA"
+            );
+          } else if (l === "into the dark forest") {
+            this.sendSticker(
+              "CgACAgQAAxkBAAIHfl6kyC3bqdc4or1uBgvmUhJ5dewQAAIiAgACXlXtUmMc11QVRzApGQQ"
+            );
+          }
 
           action = `The party begins their travel ${l}!`;
           break;
@@ -239,7 +257,7 @@ class Game {
           this.state = State("traveling");
 
           this.sendSticker(
-											"CgACAgQAAxkBAAIHkF6kyGV6ZVQ6OuV0GPbveB-y_pVlAAJqAgACmu8sUbwLetsPCbbzGQQ"
+            "CgACAgQAAxkBAAIHkF6kyGV6ZVQ6OuV0GPbveB-y_pVlAAJqAgACmu8sUbwLetsPCbbzGQQ"
           );
           break;
         }

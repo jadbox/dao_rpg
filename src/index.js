@@ -1,5 +1,5 @@
-require('dotenv').config();
-console.log('DAO_RPG_TOKEN', process.env.DAO_RPG_TOKEN);
+require("dotenv").config();
+console.log("DAO_RPG_TOKEN", process.env.DAO_RPG_TOKEN);
 const { Game } = require("./game");
 const TelegramBot = require("node-telegram-bot-api");
 
@@ -53,6 +53,14 @@ bot.onText(/\/start (.+)/, (msg, match) => {
 // Join the party
 bot.onText(/\/join/, (msg, match) => {
   const chatId = msg.chat.id;
+  const user = msg.from.username;
+  if (!user || user === "undefined") {
+    bot.sendMessage(
+      chatId,
+      `Please set up a Telegram username first in your Telegram settings.`
+    );
+    return;
+  }
   const room = (rooms[chatId] = rooms[chatId] || Room());
   rooms[chatId] = room;
 
@@ -61,7 +69,6 @@ bot.onText(/\/join/, (msg, match) => {
     return;
   }
 
-  const user = msg.from.username;
   room.players[user] = Player(user);
 
   bot.sendMessage(
@@ -98,7 +105,7 @@ const sendPoll = async (chatId, question, pollOptions, options) => {
   const open_period = (options.open_period = options.open_period || 10);
   const players = options.players;
 
-  console.log("sendPoll", chatId, question, pollOptions, options);
+  // console.log("sendPoll", chatId, question, pollOptions, options);
   const p = await bot.sendPoll(chatId, question, pollOptions, options);
   const id = p.poll.id; // message_id;
   // console.log("p", p);
@@ -151,26 +158,27 @@ bot.onText(/\/(stop|pause)/i, (msg, match) => {
   }
 
   room.game.stop();
-  send(chatId, `Game is stopped. /play to resume.`);
+  send(chatId, `Game is stopped. /play to resume or /end to end quest.`);
 });
 
-bot.onText(/\/(play|🎰)/i, (msg, match) => {
+bot.onText(/\/(play)/i, (msg, match) => {
   const chatId = msg.chat.id;
+  const user = msg.from.username;
 
   let room = rooms[chatId];
 
-  if (room && room.game) {
+  if (!room || room?.players?.indexOf(user) === -1) {
+    bot.sendMessage(
+      chatId,
+      `Pleae join the quest first before starting by using /join`
+    );
+    return;
+  }
+
+  if (room.game) {
     room.game.resume();
     send(chatId, `Game is resuming...`);
     return;
-  }
-  if (!room) {
-    // bot.sendMessage(chatId, 'must /join the party first');
-    room = rooms[chatId] = Room();
-
-    const user = msg.from.username;
-    room.players[user] = Player(user);
-    // return;
   }
 
   const game = (room.game = new Game(room));
@@ -193,8 +201,8 @@ bot.onText(/\/(play|🎰)/i, (msg, match) => {
 });
 
 bot.onText(/[\/]?(attack|kill|swing|⚔️|🤺|🏹|🗡|🔫|⛓|🔪|🧨)/i, (msg, match) => {
-		const chatId = msg.chat.id;
-		const user = msg.from.username;
+  const chatId = msg.chat.id;
+  const user = msg.from.username;
   let room = rooms[chatId];
   if (!room?.game) {
     send(chatId, "no game created");
