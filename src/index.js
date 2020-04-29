@@ -153,7 +153,7 @@ const sendPoll = async (chatId, question, pollOptions, options) => {
         winner
       ).toUpperCase()}> won with ${voter_count} vote.`;
 
-      send(chatId, rmsg);
+      // send(chatId, rmsg);
       bot.removeListener("poll", onPoll);
       res(winner);
     };

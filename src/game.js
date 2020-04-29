@@ -180,6 +180,7 @@ class Game {
     let statename = this.state.name;
 
     this.state.ticks++;
+    const ticks = this.state.ticks;
     // console.log("statename", this.state.ticks);
 
     switch (statename) {
@@ -199,41 +200,43 @@ class Game {
           this.state = State("traveling");
           break;
         }
+        // overwise carry into start
       case "start":
         // battle transition
-        if (this.state.ticks === 1) {
+        // if at start of traveling stage or random fork
+
+        if (ticks === 1 || (Math.random() > .7 && ticks % 2 === 1) ) {
           let l = null;
           if (
-            statename === "traveling" &&
             this.gstate.path?.indexOf("dungeon") > -1
           ) {
             l = await this.poll(
               "You're in a dungeon. There are two old doors in front of you:",
               [
-                "Take the left dungeon door",
-                "Take the right dungeon door",
-                "Take dungeon stairs downward",
+                "through the left dungeon door",
+                "through the right dungeon door",
+                "down the dungeon stairs",
                 "end game",
               ]
             );
           } else if (
-            statename === "traveling" &&
             this.gstate.path?.indexOf("forest") > -1
           ) {
             l = await this.poll(
               "You're in the forest. Where does the party go now?",
               [
-                "travel along a forest river",
-                "stay on the forest road",
+                "along a forest river",
+                "following the forest road",
                 "end game",
               ]
             );
-          } else
+          } else { // if(!this.gstate.path) 
             l = await this.poll("Where does the party go?", [
               "into the dungeon",
               "into the dark forest",
               "end game",
             ]);
+          }
 
           if (l === "end game") {
             this.quit();
@@ -252,7 +255,7 @@ class Game {
             );
           }
 
-          action = `The party begins their travel ${l}!`;
+          action = `The party travels ${l}!`;
           break;
         }
         if (
