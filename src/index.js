@@ -27,10 +27,11 @@ bot.onText(/\/echo (.+)/, (msg, match) => {
 
 bot.onText(/\/end/, (msg, match) => {
   const chatId = msg.chat.id;
-  if (!rooms[chatId]?.game) return;
-  rooms[chatId]?.game?.stop();
+  if (!rooms[chatId] || !rooms[chatId].game) return;
 
-  rooms[chatId] = Room();
+  rooms[chatId]?.game?.quit();
+
+  // rooms[chatId] = Room();
   send(chatId, "game ended");
 });
 
@@ -157,7 +158,7 @@ bot.onText(/\/(stop|pause)/i, (msg, match) => {
     return;
   }
 
-  room.game.stop();
+  room.game.pause();
   send(chatId, `Game is stopped. /play to resume or /end to end quest.`);
 });
 
@@ -167,7 +168,7 @@ bot.onText(/\/(play)/i, (msg, match) => {
 
   let room = rooms[chatId];
 
-  if (!room || room?.players?.indexOf(user) === -1) {
+  if (!room || !room?.players[user]) {
     bot.sendMessage(
       chatId,
       `Pleae join the quest first before starting by using /join`
