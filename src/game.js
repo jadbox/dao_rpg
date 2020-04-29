@@ -35,7 +35,9 @@ class Game {
     this.playersLen = this.playersNames.length;
 
 		this.state = State("start");
-		this.gstate = { path: '', numBattles: 0 };
+    this.gstate = { path: '', numBattles: 0 };
+    this.ended = false;
+    this.started = false;
   }
 
   start(send, sendPoll, endGame, sendSticker) {
@@ -60,6 +62,7 @@ class Game {
     options.players = this.playersLen;
     const result = await this.sendPoll(msg, optionPoll, options);
     this.resume();
+    if(this.ended) throw new Error('game ended');
     return result;
   }
 
@@ -72,13 +75,15 @@ class Game {
     this.started = true;
     // this._run();
   }
+
   quit() {
-    pause();
+    this.pause();
     if(!this.ended) this.endGame();
     this.ended = true;
   }
+
   pause() {
-    if (this.loop) clearInterval(this.loop);
+    if (this.started) clearInterval(this.loop);
     this.loop = null;
     this.started = false;
   }

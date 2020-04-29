@@ -27,11 +27,14 @@ bot.onText(/\/echo (.+)/, (msg, match) => {
 
 bot.onText(/\/end/, (msg, match) => {
   const chatId = msg.chat.id;
-  if (!rooms[chatId] || !rooms[chatId].game) return;
+  if (!rooms[chatId] || !rooms[chatId].game) {
+    return;
+  }
 
-  rooms[chatId]?.game?.quit();
+  rooms[chatId].game.quit();
 
-  // rooms[chatId] = Room();
+  rooms[chatId] = Room(); // clear out room
+
   send(chatId, "game ended");
 });
 
@@ -75,6 +78,27 @@ bot.onText(/\/join/, (msg, match) => {
   bot.sendMessage(
     chatId,
     `${msg.from.username} thanks for joining. Type /play ONLY once everyone has joined.`
+  );
+});
+
+// Leave the party
+bot.onText(/\/leave/, (msg, match) => {
+  const chatId = msg.chat.id;
+  const user = msg.from.username;
+
+  const room = (rooms[chatId] = rooms[chatId] || Room());
+  rooms[chatId] = room;
+
+  if (room.game) {
+    bot.sendMessage(chatId, "sorry, game has already started");
+    return;
+  }
+
+  delete room.players[user];
+
+  bot.sendMessage(
+    chatId,
+    `${msg.from.username} left the party.`
   );
 });
 
@@ -134,7 +158,7 @@ const sendPoll = async (chatId, question, pollOptions, options) => {
       res(winner);
     };
 
-    const onPoll = (poll) => {
+    var onPoll = (poll) => {
       // console.log("poll.message_id!==id", poll, poll.id, id);
       if (poll.id !== id) return; //  || poll.is_closed===false
       lastPoll = [...poll.options];
