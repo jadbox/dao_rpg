@@ -17,7 +17,7 @@ Play the game now on Telegram by joining our community channel: https://t.me/dao
 * Clan/Co-op banking and organization mechanics
 * User controlled world expansion
 
-User Interaction
+## User Interaction
 
 * The interaction model is driven by chatbots. In theory the game could also have it’s own website that uses the same API that the chatbots use to interact with the game.
 * MUD-like interaction where the UI is text only (like Zork), with perhaps aided by pictures and animated gifs (depending on chatbot support)
