@@ -195,8 +195,7 @@ class Game {
 			case "traveling":
         if(this.gstate.numBattles===NUM_BATTLES+1) {
           this.send('You\'ve completed the quest! Press /join to join in on a new mission.');
-          this.endGame();
-          this.stop();
+          this.quit();
           this.state = State("traveling");
           break;
         }
