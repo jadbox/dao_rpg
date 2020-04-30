@@ -28,3 +28,10 @@ Play the game now on Telegram by joining our community channel: https://t.me/dao
 Game design document: 
 
 https://docs.google.com/document/d/19DIMfSzj14FLj_9zEWpTfDFL2Qi-oMRFC--HqG-5vp4/edit#heading=h.gqx5ya2arqyo
+
+## Project Setup
+
+* git clone
+* create `.env` file with your Telegram bot key
+* `npm start`
+* that's it!
