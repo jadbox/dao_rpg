@@ -10,6 +10,12 @@ Play the game now on Telegram by joining our community channel: https://t.me/dao
 
 .. or play solo by just interacting with the bot directly: @dao_rpg_bot
 
+Testmonial:
+
+> "playing DAO RPG tickled my senses for what's possible with DAO's today. Can't wait to see more integrations for this as more DAOified games come online 🥳" - Yalor Arnold
+
+Gameplay video: https://www.youtube.com/watch?v=ctSm6UhWC-U
+
 ## Basic Mechanics
 * MUD-inspired interaction
 * Integrates with discussion platforms (Telegram, Rocket Chat, Discord, Slack, etc)
