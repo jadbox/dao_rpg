@@ -230,7 +230,7 @@ bot.onText(/[\/]?(attack|kill|swing|⚔️|🤺|🏹|🗡|🔫|⛓|🔪|🧨)/i,
   const user = msg.from.username;
   let room = rooms[chatId];
   if (!room?.game) {
-    send(chatId, "no game created");
+    // send(chatId, "no game created");
     return;
   }
 
