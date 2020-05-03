@@ -1,6 +1,9 @@
 {
   "name": "oneupmud",
   "version": "1.0.0",
+  "engines": {
+    "node": "14.x.x"
+  },
   "main": "src/index.js",
   "author": "Jonathan Dunlap",
   "license": "MIT",
@@ -11,7 +14,8 @@
     "xstate": "^4.9.1"
   },
   "scripts": {
-    "start": "nodemon --inspect src/index.js"
+    "start": "node src/index.js",
+    "dev": "nodemon --inspect src/index.js"
   },
   "devDependencies": {
     "nodemon": "^2.0.3"
