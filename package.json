@@ -10,7 +10,7 @@
   "private": false,
   "dependencies": {
     "dotenv": "^8.2.0",
-    "node-telegram-bot-api": "^0.40.0",
+    "node-telegram-bot-api": "^0.50.0",
     "xstate": "^4.9.1"
   },
   "scripts": {
