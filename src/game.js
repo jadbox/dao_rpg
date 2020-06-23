@@ -1,10 +1,10 @@
 const NUM_BATTLES = 2; // number of battles before boss
-const SPEED = 2000 * 2.00;
+const SPEED = 2000 * 3.00;
 
 const MOBS_STATS = {
-  rat: { hp: 3, dm: 2 },
-  skeleton: { hp: 3, dm: 2 },
-  slug: { hp: 1, dm: 1 },
+  'angry vacuum': { hp: 3, dm: 2 },
+  'grumpy boss': { hp: 3, dm: 2 },
+  'band of barking dogs': { hp: 1, dm: 1 },
 };
 const MOBS = Object.keys(MOBS_STATS);
 Object.keys(MOBS_STATS).forEach(k=>MOBS_STATS[k].name = k);

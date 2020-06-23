@@ -1,10 +1,12 @@
 require("dotenv").config();
-console.log("DAO_RPG_TOKEN", process.env.DAO_RPG_TOKEN);
+const token = process.env.TINGLES_RPG_TOKEN;
+
+console.log("TOKEN", token);
 const { Game } = require("./game");
 const TelegramBot = require("node-telegram-bot-api");
 
 // replace the value below with the Telegram token you receive from @BotFather
-const token = process.env.DAO_RPG_TOKEN;
+
 
 // Create a bot that uses 'polling' to fetch new updates
 const bot = new TelegramBot(token, { polling: true });
@@ -225,7 +227,7 @@ bot.onText(/\/(play)/i, (msg, match) => {
   bot.sendMessage(chatId, `Game is starting- good luck! /stop to stop.`);
 });
 
-bot.onText(/[\/]?(attack|kill|swing|⚔️|🤺|🏹|🗡|🔫|⛓|🔪|🧨)/i, (msg, match) => {
+bot.onText(/[\/]?(calm|whisper|tingle)/i, (msg, match) => {
   const chatId = msg.chat.id;
   const user = msg.from.username;
   let room = rooms[chatId];
@@ -237,7 +239,7 @@ bot.onText(/[\/]?(attack|kill|swing|⚔️|🤺|🏹|🗡|🔫|⛓|🔪|🧨)/i,
   room.game.act(user, "attack");
 });
 
-bot.onText(/[\/]?(aid|heal|1up|🍿|🛡|💊|🥪) (.*)/i, (msg, match) => {
+bot.onText(/[\/]?(aid|calm|whisper|tingle|heal|1up|🍿|🛡|💊|🥪) (.*)/i, (msg, match) => {
   const chatId = msg.chat.id;
   const room = rooms[chatId];
   const user = msg.from.username;
@@ -283,7 +285,7 @@ bot.onText(/\/start/, (msg, match) => {
 
   bot.sendMessage(
     chatId,
-    `Welcome to DAO RPG! Type /join to form a new party.`
+    `Welcome to Tingles! Type /join to form a new party.`
   );
 });
 
