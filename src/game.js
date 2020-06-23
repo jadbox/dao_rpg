@@ -138,10 +138,10 @@ class Game {
         const mob = this.state.mobs[mobIx];
         const dm = rint(p.dm, 1);
 
-        action = `⚔️${player} attacks ${mob.name} for ${dm}!`;
+        action = `⚔️${player} calms ${mob.name} for ${dm} stress!`;
 
         mob.hp -= dm;
-        if (mob.hp > 0) action += ` ${mob.name} has ${mob.hp}hp left.`;
+        if (mob.hp > 0) action += ` ${mob.name} has ${mob.hp} positive vibes left.`; // hp = chill vibes
         else {
           action += `\n💀${mob.name} has died!`;
           this.state.mobs = this.state.mobs.filter((x) => x.hp > 0);
@@ -189,7 +189,7 @@ class Game {
         this.sendSticker(
           "CgACAgQAAxkBAAIG3l6kwuORUguOafjfk6GJKWV_SaXuAAIiAgAC3uj0Ulw22nzaA9W9GQQ"
         );
-        action = `⚰️⚰️⚰️Party has died :( \n Press /start to begin again.`;
+        action = `⚰️⚰️⚰️Party got too stressed and all went home :( \n Press /start to begin again.`;
         this.quit();
 				break;
 			case "traveling":
@@ -207,32 +207,32 @@ class Game {
         if (ticks === 1 || (Math.random() > .7 && ticks % 2 === 1) ) {
           let l = null;
           if (
-            this.gstate.path?.indexOf("dungeon") > -1
+            this.gstate.path?.indexOf("library") > -1
           ) {
             l = await this.poll(
-              "You're in a dungeon. There are two old doors in front of you:",
+              "You're in a library. There are two old doors in front of you:",
               [
-                "through the left dungeon door",
-                "through the right dungeon door",
-                "down the dungeon stairs",
+                "through the left library door",
+                "through the right library door",
+                "down the library stairs",
                 "end game",
               ]
             );
           } else if (
-            this.gstate.path?.indexOf("forest") > -1
+            this.gstate.path?.indexOf("park") > -1
           ) {
             l = await this.poll(
-              "You're in the forest. Where does the party go now?",
+              "You're in the park. Where does the party go now?",
               [
-                "along a forest river",
-                "following the forest road",
+                "along a park river",
+                "following the park road",
                 "end game",
               ]
             );
           } else { // if(!this.gstate.path) 
             l = await this.poll("Where does the party go?", [
-              "into the dungeon",
-              "into the dark forest",
+              "into the library",
+              "into the dark park",
               "end game",
             ]);
           }
@@ -244,11 +244,11 @@ class Game {
           }
 
           this.gstate.path = l;
-          if (l === "into the dungeon") {
+          if (l === "into the library") {
             this.sendSticker(
               "CgACAgQAAxkBAAIHfF6kx7Flv1xxkY3hnZAjE4FzVzYTAAJpAgAD6u1SwfbnP55tLsUZBA"
             );
-          } else if (l === "into the dark forest") {
+          } else if (l === "into the dark park") {
             this.sendSticker(
               "CgACAgQAAxkBAAIHfl6kyC3bqdc4or1uBgvmUhJ5dewQAAIiAgACXlXtUmMc11QVRzApGQQ"
             );
@@ -281,12 +281,12 @@ class Game {
             "CgACAgQAAxkBAAIGsV6kwf1tL9MAAe0ThA8x2NnqI6SNJwACawIAAqxALFGXDj5567OOwRkE"
           );
 
-          if (mobs.length === 1) action = `You see a ceature approach: a ${mobs[0].name}!`;
+          if (mobs.length === 1) action = `You see a creature approach: a ${mobs[0].name}!`;
           if (mobs.length === 2) action = `You see two creatures approaching: a ${mobs[0].name} and a ${mobs[1].name}!`;
           else
             action = `You see a band of ${mobs.map((x) => x.name).join(", ")} approaching!`;
 
-          action += " Type /attack to get it!";
+          action += " Type /tingle to get it!";
           break;
         }
         action = "The party travels for awhile.";
@@ -299,7 +299,7 @@ class Game {
           this.state = State("traveling");
 
           this.sendSticker(
-            "CgACAgQAAxkBAAIHkF6kyGV6ZVQ6OuV0GPbveB-y_pVlAAJqAgACmu8sUbwLetsPCbbzGQQ"
+            "CgACAgQAAxkBAAMoXvJwlWWbXyHc096iGuMn6Eg7TtwAAkYCAAIWy5RSxRz_o77-ChcaBA"
           );
           break;
         }
@@ -316,15 +316,15 @@ class Game {
 
           const playerO = this.players[player];
           const dm = rint(mob.dm, 1);
-          action = `🥊 The ${mob.name} attacks ${player} for ${dm}! Press /attack now!`;
+          action = `🥊 The ${mob.name} attacks ${player} for ${dm} stress! Press /attack now!`;
 
           playerO.hp -= dm;
-          if (playerO.hp > 0) action += `\n${player} has ${playerO.hp}hp left.`;
+          if (playerO.hp > 0) action += `\n${player} has ${playerO.hp} positive vibes left.`;
           else action += `\n⚰️${player} has died!`;
 
           break;
         } else {
-          if (rnd > 0.7) action = `${mob.name} prepares an attack...`;
+          if (rnd > 0.7) action = `${mob.name} prepares to cause stress...`;
           else action = null; // say nothing
           break;
         }
